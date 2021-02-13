@@ -1,4 +1,5 @@
 import numpy as np
+import unicodedata
 
 
 def calculate(numbers):
@@ -35,3 +36,14 @@ def calculate(numbers):
                            matrix.sum()]
 
     return calculations
+
+def theory():
+    std_sign = 'σ'
+    std_sign_name = unicodedata.name(std_sign)
+    text = (f"Deviation means 'how far from the normal'. \n"
+            f"The Standard Deviation is a measure of how spread out numbers are. \n"
+            f"Its symbol is 'σ' - '{std_sign_name}'\n"
+            f"formula: the square root of the Variance.\n"
+            f"Variance - the average of the squared differences from the Mean. \n"
+            f"Mean - the simple average. \n")
+    print(text)
