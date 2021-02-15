@@ -1,0 +1,190 @@
+# Pandas Tutorials - Corey Schafer
+
+1
+2
+3
+4
+5
+
+
+
+# ----------------------- VID 1, VID 2 -----------------------
+
+# sponsor
+https://brilliant.org/CMS 
+
+pd.set_option('display.max_columsn/rows' = int)
+
+# access to columns
+df['col_name']
+df.col_name
+
+# select multiple columns passing list of column_names
+df[['col1', 'col2']]
+
+# show all columns
+df.columns
+
+# ger number of rows and columns of dataframe
+df.shape
+
+# get row by 'integer location'
+df.iloc[0]  # returns a series with index as columns from df
+df.iloc[[0, 1, 2]]  # select multiple rows, return dataframe
+
+# pass column to .iloc
+df.iloc[[0, 1, 2], column_index]  # with iloc can only use column_index, not col_names
+
+# search by lable (index based or srt_based) with .loc
+# .loc allows to use lables for rows and for columns
+df.loc[0]  # return Series
+df.loc[[0,1], 'email']  # can filter by column name
+df.loc[0:2, 'col1':'col5']  # when using slices brackets aren't needed
+
+
+
+# ----------------------- VID 3 - INDEXES -----------------------
+# ----------------------- CUSTOM INDEXES ------------------------
+
+# pandas doesn't enforce index to be unique!
+
+# show index
+df.index
+
+# set column of df as its index
+df.set_index('col_name')  # do not modify dataframe!
+df.set_index('col_name', inplace=True)  # modify dataframe!
+
+#
+df.loc('index_str')
+
+# rollback setting index
+df.reset_index(inplace=True)
+
+# set index while loading data
+df.read_csv('filename.csv', index_col='col_name')
+
+# sort index alphabetically
+df.sort_index()
+df.sort_index(ascending=False)  # reverse order 
+df.sort_index(ascending=False, inplace=True)
+
+
+
+# ----------------------- VID 4 - FILTERING DATA -----------------------
+# ------------------- BOLEAN SERIES AND 'MASKING'-----------------------
+
+
+# get filter mask
+filt = (df['col_name'] == val)
+# filter(func, iterable) - is python built-in function!
+
+# apply filter to dataframe
+df[filt]
+df.loc[filt]  # preferable; here we still can grab specific columns as well
+df.loc[filt, 'col_name']
+
+# 'and' and 'or' operators - '&', '|'
+# can't use the python built-in keywords 
+filt = (df['col_name_1'] == val_1) & (df['col_name_2'] == val_2)
+
+# opposite filter (negate filter) - '~'
+df.loc[~filt]
+
+# filter specific rows with .isin() instead of chained bolean operators
+filt = df['col'].isin(['col_val1', 'col_val2', 'col_val3'])
+
+# another filter operation == string method
+str_filt = df['col'].str.contains('substr', na=False)  # na - set fill values for NaNs
+
+
+
+# ----------------------- VID 5 - ALTER DATA -----------------------
+# -------------------------- UPDATE DATA ---------------------------
+
+
+# update columns columns names
+df.columns
+df.colunms = column_list_str
+df.columns = [x.upper() for x in df.columns]  # use listcomps
+
+df.columns = df.columns.str.replace('target', 'new')
+
+df.rename(columns={'target_col_name': 'new_col_name', ...})
+df.rename(columns={'target_col_name': 'new_col_name', ...}, inplace=True)
+
+
+# updating data in rows
+df.loc['row_1'] = list_of_new_values
+
+# update specific columns for specific row
+df.loc['low_1, ['col1', 'col2']] = ['new_col1_val', 'new_col2_val']
+
+# change single value
+df.loc['row_1', 'col'] = new_val
+
+# 'at' indexer - changing specific value (result is identical as in previous example)
+df.at['row_1', 'col'] = new_val
+
+# common mistake while trying to change value without 'loc' or 'at'
+filt = df['email'] == 'joker@circus.fun'
+df[filt]['email'] = 'ace@party.fun'
+# SettingWithCopyWarning
+
+df.loc[filt, 'email'] = 'new_email@fun.ua'  # correct version
+
+
+# update multiple rows of data
+#
+# update all values in a single column
+df['column'] = df['column'].str.lower()  # lowercase all emails
+
+# apply vs map vs applymap vs replace
+#
+
+# apply - call a function on values
+# can work on either a dataframe object or a series object - (behaviour is different)
+
+# apply for a series - apply a func to every value in a series
+
+# get info
+df['col'].apply(len)
+
+# update info
+def upp(s):
+    return s.upper()
+df['col'] = df['col'].apply(upp)
+
+# apply with lambda
+df['col'] = df['col'].apply(lambda s: s.upper())
+
+
+# apply with dataframes - apply function on each (row) column of dataframe
+df['col'].apply(len)
+
+df.apply(pd.Series.min)
+df.apply(pd.Series.min, axis='columns')
+
+df.apply(lambda serie: serie.some_method())
+
+
+# apply a func to every individual element of a dataframe - applymap method
+# only workd on dataframes
+df.applymap(str.lower)
+
+
+# map - only works on a Series
+# substitute each value in a series with another value
+df['col'] = df['col].map({'target': 'new', ...})  # values with no match are converted to Nan!
+
+# to keep 'not matched values' and do not convert them to Nan - use 'replace' method
+df['col'] = df['col].replace({'target': 'new', ...})
+
+
+
+
+
+
+
+
+ 
