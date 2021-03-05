@@ -39,20 +39,52 @@ def draw_line_plot():
     return fig
 
 
-# def draw_bar_plot():
-#     # Copy and modify data for monthly bar plot
-#     df_bar = None
-#
-#     # Draw bar plot
-#
-#
-#
-#
-#
-#     # Save image and return fig (don't change this part)
-#     fig.savefig('bar_plot.png')
-#     return fig
-#
+def draw_bar_plot():
+    # Copy and modify data for monthly bar plot
+    df_bar = df.copy()
+
+    # add year
+    df_bar['year'] = df_bar.index.year
+    df_bar.year.value_counts().sort_index()
+
+    # add month name
+    df_bar['month'] = df_bar.index.month_name()
+    df_bar.month.value_counts(normalize=True).mul(100).round(1)
+
+    # add month index
+    df_bar['month_index'] = df_bar.index.month
+
+    # get sorted months
+    month_gr = df_bar.groupby('month')
+    months_indexes = month_gr.nth(0)
+    months_indexes['combo'] = tuple(zip(months_indexes.index, months_indexes.month_index))
+    month_tuples = list(months_indexes.combo)
+    months_ordered = sorted(month_tuples, key=lambda x: x[1])
+    months_ordered = [month for month, index in months_ordered]
+    # months_ordered = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+    # define month as categorical data; Specify logical ordering of the category ---- ordered categories
+    month_type = pd.api.types.CategoricalDtype(categories=months_ordered, ordered=True)
+    df_bar['month'] = df_bar.month.astype(month_type)
+
+    # data for bar plot
+    df_bar.drop(columns='month_index', inplace=True)
+    df_bar_gr = df_bar.groupby(['year', 'month'])
+    mean = df_bar_gr.mean().sort_index()
+    data_for_plot = mean.unstack()
+    data_for_plot.columns = months_ordered
+
+    # Draw bar plot
+    fig = plt.figure()
+
+    data_for_plot.plot(kind='bar')
+
+
+    # Save image and return fig (don't change this part)
+    fig.savefig('bar_plot.png')
+    return fig
+
+
 # def draw_box_plot():
 #     # Prepare data for box plots (this part is done!)
 #     df_box = df.copy()
