@@ -41,6 +41,7 @@ def draw_line_plot():
 
 def draw_bar_plot():
     # Copy and modify data for monthly bar plot
+    #     df_bar = df.copy()
     df_bar = df.copy()
 
     # add year
@@ -68,6 +69,7 @@ def draw_bar_plot():
     df_bar['month'] = df_bar.month.astype(month_type)
 
     # data for bar plot
+    # todo: make pivot_table instead of this lines
     df_bar.drop(columns='month_index', inplace=True)
     df_bar_gr = df_bar.groupby(['year', 'month'])
     mean = df_bar_gr.mean().sort_index()
@@ -75,13 +77,13 @@ def draw_bar_plot():
     data_for_plot.columns = months_ordered
 
     # Draw bar plot
-    fig = plt.figure()
-
-    data_for_plot.plot(kind='bar')
-
+    ax = data_for_plot.plot(kind='bar', figsize=(8, 6), xlabel='Years', ylabel='Average Page Views', legend=True)
+    ax.legend(title='Months')
+    fig = ax.get_figure()
 
     # Save image and return fig (don't change this part)
-    fig.savefig('bar_plot.png')
+    # todo: issue with saving figure
+    fig.savefig('bar_plot.png', dpi=300, transparent=False)
     return fig
 
 
