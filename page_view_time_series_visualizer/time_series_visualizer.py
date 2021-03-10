@@ -87,19 +87,42 @@ def draw_bar_plot():
     return fig
 
 
-# def draw_box_plot():
-#     # Prepare data for box plots (this part is done!)
-#     df_box = df.copy()
-#     df_box.reset_index(inplace=True)
-#     df_box['year'] = [d.year for d in df_box.date]
-#     df_box['month'] = [d.strftime('%b') for d in df_box.date]
-#
-#     # Draw box plots (using Seaborn)
-#
-#
-#
-#
-#
-#     # Save image and return fig (don't change this part)
-#     fig.savefig('box_plot.png')
-#     return fig
+def draw_box_plot():
+    # Prepare data for box plots (this part is done!)
+    df_box = df.copy()
+    df_box.reset_index(inplace=True)
+    df_box['year'] = [d.year for d in df_box.date]
+    df_box['month'] = [d.strftime('%b') for d in df_box.date]
+    df_box.rename({'month': 'Month',
+                   'year': 'Year',
+                   'value': 'Page Views',
+                   'date': 'Date'}, axis=1, inplace=True)
+
+    data_1 = df_box.loc[:, 'Page Views':'Year']
+    data_2 = df_box.loc[:, ['Page Views', 'Month']]
+
+    # Set month as category and give it order
+    months_abbr = data_2.Month.unique()
+    months_abbr_sorted = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    months_abbr_type = pd.api.types.CategoricalDtype(categories=months_abbr_sorted, ordered=True)
+    data_2['Month'] = data_2.Month.astype(months_abbr_type)
+
+    # Draw box plots (using Seaborn)
+
+    # Combine box plots on one figure
+    fig = plt.figure(figsize=(10.0, 5.0))
+
+    axes_1 = fig.add_axes([0, 0, 0.5, 1])
+    axes_1.set_title('Year-wise Box Plot (Trend)')
+    sns.boxplot(x=data_1.Year, y=data_1['Page Views'], data=data_1, ax=axes_1)
+
+    axes_2 = fig.add_axes([0.6, 0.0, 0.5, 1])
+    axes_2.set_title('Month-wise Box Plot (Seasonality)')
+    sns.boxplot(x='Month', y='Page Views', data=data_2, ax=axes_2)
+
+    # Save image and return fig (don't change this part)
+    fig.savefig('box_plot.png')
+    return fig
+
+
+# TODO: MAKE CONCLUSIONS
