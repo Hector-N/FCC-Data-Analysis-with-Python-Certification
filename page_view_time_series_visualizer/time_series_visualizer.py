@@ -4,7 +4,7 @@ import seaborn as sns
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
-# Import data (Make sure to parse dates. Consider setting index column to 'date'.)
+# Import data
 views = pd.read_csv('fcc-forum-pageviews.csv', parse_dates=True, index_col='date')
 
 # Clean data
@@ -17,7 +17,7 @@ df = views_cleaned.copy()  # fix for tests
 
 def draw_line_plot():
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(16, 8))
 
     plt.title('Daily freeCodeCamp Forum Page Views 5/2016-12/2019')
     plt.xlabel('Date')
@@ -75,7 +75,7 @@ def draw_bar_plot():
 
     # Draw bar plot
     ax = data_for_plot.plot(kind='bar',
-                            figsize=(8, 6),
+                            figsize=(16, 8),
                             xlabel='Years',
                             ylabel='Average Page Views',
                             legend=True)
@@ -106,13 +106,13 @@ def draw_box_plot():
                    'date': 'Date'}, axis=1, inplace=True)
 
     # Set month as category and give it order
-    months_abbr = df_box.Month.unique()
+    # months_abbr = df_box.Month.unique()
     # print(months_abbr)
     months_abbr_sorted = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     months_abbr_type = pd.api.types.CategoricalDtype(categories=months_abbr_sorted, ordered=True)
     df_box['Month'] = df_box.Month.astype(months_abbr_type)
 
-    fig = plt.figure(figsize=(10.0, 5.0))
+    fig = plt.figure(figsize=(12.0, 6.0))
 
     axes_1 = fig.add_axes([0, 0, 0.5, 1])
     axes_1.set_title('Year-wise Box Plot (Trend)')
@@ -136,4 +136,41 @@ def draw_box_plot():
 # fig_box_plot = draw_box_plot()
 
 
-# TODO: MAKE CONCLUSIONS
+## Conclusions
+#
+# Given dataset represents number of visitors of 'freecodecamp.org' site
+# per day in time period from 09.05.2016 up to 03.12.2019.
+#
+# In 2016 there's no data for four first months and up to ninth of May.
+# For December 2019 data set contains only for three first days.
+
+
+### Analyzing Line Plot
+#
+# On the line plot we can see the growth of popularity.
+
+
+### Analyzing Box Plot
+#
+# Besides overall growth,
+# we can observe some regression in the spring season,
+# and significant growth at the end of the 2018 and 2019 years.
+
+
+### Analyzing Trend
+#
+# We can see exponential growth in each year.
+#
+# There is no skew in the data, except the first 2016 year,
+# but this can be caused by absence of the data for first four months.
+#
+# Outliers mostly present above the maximums in each year.
+# In 2018 and 2019 - a lot of outliers.
+#
+#
+## Analyzing Seasonality
+#
+# The most favorable months are February, March, April and July.
+#
+# The less favorable months are May, June, August, September, October and December.
+# Since August we can see significant amount of outliers in the upper range.
