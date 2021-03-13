@@ -1,0 +1,446 @@
+# Pandas Tutorials - Corey Schafer
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+
+
+
+# ----------------------- VID 1, VID 2 -----------------------
+
+# sponsor
+https://brilliant.org/CMS
+
+# data course - stackoverflow developer survey 2020 data set
+https://stackoverflow.blog/2020/07/27/public-data-release-of-stack-overflows-2020-developer-survey/
+
+pd.set_option('display.max_columns/rows', int)
+
+# access to columns
+df['col_name']
+df.col_name
+
+# select multiple columns passing list of column_names
+df[['col1', 'col2']]
+
+# show all columns
+df.columns
+
+# ger number of rows and columns of dataframe
+df.shape
+
+# get row by 'integer location'
+df.iloc[0]  # returns a series with index as columns from df
+df.iloc[[0, 1, 2]]  # select multiple rows, return dataframe
+
+# pass column to .iloc
+df.iloc[[0, 1, 2], column_index]  # with iloc can only use column_index, not col_names
+
+# search by lable (index based or srt_based) with .loc
+# .loc allows to use lables for rows and for columns
+df.loc[0]  # return Series
+df.loc[[0,1], 'email']  # can filter by column name
+df.loc[0:2, 'col1':'col5']  # when using slices brackets aren't needed
+
+
+
+# ----------------------- VID 3 - INDEXES -----------------------
+# ----------------------- CUSTOM INDEXES ------------------------
+
+# pandas doesn't enforce index to be unique!
+
+# show index
+df.index
+
+# set column of df as its index
+df.set_index('col_name')  # do not modify dataframe!
+df.set_index('col_name', inplace=True)  # modify dataframe!
+
+#
+df.loc('index_str')
+
+# rollback setting index
+df.reset_index(inplace=True)
+
+# set index while loading data
+df.read_csv('filename.csv', index_col='col_name')
+
+# sort index alphabetically
+df.sort_index()
+df.sort_index(ascending=False)  # reverse order 
+df.sort_index(ascending=False, inplace=True)
+
+
+
+# ----------------------- VID 4 - FILTERING DATA -----------------------
+# ------------------- BOLEAN SERIES AND 'MASKING'-----------------------
+
+
+# get filter mask
+filt = (df['col_name'] == val)
+# filter(func, iterable) - is python built-in function!
+
+# apply filter to dataframe
+df[filt]
+df.loc[filt]  # preferable; here we still can grab specific columns as well
+df.loc[filt, 'col_name']
+
+# 'and' and 'or' operators - '&', '|'
+# can't use the python built-in keywords 
+filt = (df['col_name_1'] == val_1) & (df['col_name_2'] == val_2)
+
+# opposite filter (negate filter) - '~'
+df.loc[~filt]
+
+# filter specific rows with .isin() instead of chained bolean operators
+filt = df['col'].isin(['col_val1', 'col_val2', 'col_val3'])
+
+# another filter operation == string method
+str_filt = df['col'].str.contains('substr', na=False)  # na - set fill values for NaNs
+
+
+
+# ----------------------- VID 5 - ALTER DATA -----------------------
+# -------------------------- UPDATE DATA ---------------------------
+
+
+# update columns columns names
+df.columns
+df.columns = column_list_str
+df.columns = [x.upper() for x in df.columns]  # use listcomps
+
+df.columns = df.columns.str.replace('target', 'new')
+
+df.rename(columns={'target_col_name': 'new_col_name', ...})
+df.rename(columns={'target_col_name': 'new_col_name', ...}, inplace=True)
+
+
+# updating data in rows
+df.loc['row_1'] = list_of_new_values
+
+# update specific columns for specific row
+df.loc['low_1, ['col1', 'col2']] = ['new_col1_val', 'new_col2_val']
+
+# change single value
+df.loc['row_1', 'col'] = new_val
+
+# 'at' indexer - changing specific value (result is identical as in previous example)
+df.at['row_1', 'col'] = new_val
+
+# common mistake while trying to change value without 'loc' or 'at'
+filt = df['email'] == 'joker@circus.fun'
+df[filt]['email'] = 'ace@party.fun'
+# SettingWithCopyWarning
+
+df.loc[filt, 'email'] = 'new_email@fun.ua'  # correct version
+
+
+# update multiple rows of data
+#
+# update all values in a single column
+df['column'] = df['column'].str.lower()  # lowercase all emails
+
+# apply vs map vs applymap vs replace
+#
+
+# apply - call a function on values
+# can work on either a dataframe object or a series object - (behaviour is different)
+
+# apply for a series - apply a func to every value in a series
+
+# get info
+df['col'].apply(len)
+
+# update info
+def upp(s):
+    return s.upper()
+df['col'] = df['col'].apply(upp)
+
+# apply with lambda
+df['col'] = df['col'].apply(lambda s: s.upper())
+
+
+# apply with dataframes - apply function on each (row) column of dataframe
+df['col'].apply(len)
+
+df.apply(pd.Series.min)
+df.apply(pd.Series.min, axis='columns')
+
+df.apply(lambda serie: serie.some_method())
+
+
+# apply a func to every individual element of a dataframe - applymap method
+# only workd on dataframes
+df.applymap(str.lower)
+
+
+# map - only works on a Series
+# substitute each value in a series with another value
+df['col'] = df['col].map({'target': 'new', ...})  # values with no match are converted to Nan!
+
+# to keep 'not matched values' and do not convert them to Nan - use 'replace' method
+df['col'] = df['col].replace({'target': 'new', ...})
+
+
+# ---------------------- VID 6 - ADD/REMOVE COLUMNS FROM DATAFRAMES -----------------------
+# ------------------------- COMBINE INFO FROM MULTIPLE COLUMNS ----------------------------
+
+# merge str values from two cols
+# can't use dot notation, need to use brackets
+df['full_name'] = df['first'] + ' ' + df['last']
+
+# remove columns
+df.drop(columns=['first', 'last'], inplace=True)
+
+# split column
+df[['first', 'last']] = df['full_name'].str.split(' ', expand=True)
+
+# adding and removing rows of data
+#
+# add single row
+df.append({'col': 'val', 'col1': 'val2'}, ignore_index=True)
+
+# combine 2 dataframes together into single by appending rows from 1 to another
+df1.append(df2, ignore_index=True)
+df1.append(df2, ignore_index=True, sort=False)
+# to make change permanent - use assignment (inplace isn't available)
+
+# remove rows
+df.drop(index=int, inplace=True)
+
+df.drop(index=conditional_statement, inplace=True)
+filt = (df['last_name'] == 'Doe')
+df.drop(index=df[filt].index, inplace=True)
+
+
+
+# ------------------------------ VID 7 - SORT DATA ---------------------------------
+# ----------- SORT COLUMNS/MULTIPLE_COLUMNS, GRAB MAX/MIN VALUES -------------------
+
+# sort by column
+df.sort_values(by='col_name')
+df.sort_values(by='col_name', ascending=False)
+
+# sort by multiple columns
+df.sort_values(by=['col_name_1', 'col_name_2'], ascending=False)  # both cols are sorted in descending order
+
+# sort multiple cols with different ordering
+df.sort_values(by=['col_name_1', 'col_name_2'], ascending=[False, True])
+
+# permanently record changes of sorting
+df.sort_values(by='col', inplace=True)
+
+# sort by index
+df.sort_index()
+
+# sort Series
+df['col'].sort_values()
+
+# get largest/smallest values
+Series.nlargest(n:int)  # return not unique values
+DataFrame.nsmallest(n:int, from_col:str)
+
+
+
+# ----------------------- VID 8 - GROUP AND AGGREGATE DATA -----------------------
+# --------------------------------- STATISTICS -----------------------------------
+
+Aggregation - combining multiple pieces of data in a single result
+
+# broad overview of stats
+df.describe()
+
+# get median
+Series.median()  # ignores NaN values
+
+
+# count non NaN values
+Series.count()
+
+# count of each value
+Series.value_counts()
+Series.value_counts()
+
+# 'groupby' operation involves splitting the object, applying the function, combining the results
+
+# splitting the object
+gr = df.groupby(['col'])  # groupby object
+
+gr.get_group('gr_name')
+
+filt = df['gr_name'] == 'gr_name_val'  # the same as previous
+df.loc[filt]
+
+# apply func to group
+group['column'].value_counts()
+
+# apply several aggregate functions with agg() method
+group['salary'].median()
+group['salary'].mean()
+group['salary'].agg(list_of_funcs)
+
+
+#
+group['col'].apply(lambda...)
+
+#
+pd.concat(['serie1', 'serie2'], axis='columns', sort=False)
+
+
+
+# ----------------------- VID 9 - CLEAN DATA -----------------------
+# ----------------------- CASTING DATA TYPES -----------------------
+
+# values that represent missing data: np.nan, None, 'NA', 'Missing'
+
+# drop missing values
+df.dropna()  # remove rows with NaN and None
+
+df.dropna(axis='index', how='any')  # default args
+df.dropna(axis='index', how='all')  # drop only if all vals are missing
+
+# drop based on specific column
+df.dropna(axis='index', how='any', subset=['email'])
+df.dropna(axis='index', how='all', subset=['last_name', 'email'])
+
+# deal with customized missing values (i.e. 'Missing', 'NA', '...')
+df.replace('NA', np.nan, inplace=True)
+df.replace('Missing', np.nan, inplace=True)
+
+# get mask of NaN values (boolean array)
+df.isna()
+
+# substitute NaN values with custom value
+df.fillna('MISSING')
+
+# castign datatypes
+
+# check types
+df.dtypes
+
+# np.nan is a float!
+# that's why can't convert to int
+type(np.nan)
+df['age'] = df['age'].astype(int)  # Error
+
+# converting NaNs to floats - means that values still missing
+df['age'] = df['age'].astype(float)  # Error
+
+# handle missing values while loading data
+na_vals = ['NA', ' ', 'Missing']
+pd.read_csv('file.csv', na_values=na_vals)
+
+# some problems with casting values
+
+# show unique values (similar to .value_counts())
+Series.unique()
+
+# replace values in column
+df['YearCode'].replace('less than 1 year', 0, inplace=True)
+df['YearCode'].replace('more than 50 years', 51, inplace=True)
+
+
+
+
+
+# ------------------------ VID 10 - DATE AND TIME SERIES DATA ----------------------
+
+df['date'] = pandas.to_datetime(df['date'], format='format_string')
+datetime.day_name()
+
+d_parser = labmda s: pd.datetime.strptime(s, 'format_str')
+df = pd.read_csv('file.csv', parse_dates=[list_of_cols], date_parser=d_parser)
+
+# access dt class on the timeseries object
+df['date'].dt.some_day_time_method()
+df['date'].dt.day_name()
+
+df['date'] .min()
+
+# time delta - substracting dates
+timedelta = date1 - date2
+
+# filters by date
+filt_date = (df['date'] >=2018) & (df['date'] <=2020)
+filt_date2 = (df['date'] >= pd.to_datetime('2018-01-01')) & (df['date'] <= pd.to_datetime('2020-01-01'))
+df.loc[filt_date]
+
+
+# to use slicing or .loc[] - set datetime column as index
+df.set_index('date', inplace=True)
+df['2020']
+df.loc['2020']
+df['2020-01': '2020-02']
+
+
+# resampling - changing index on the date-based-index dataframe
+df['come_col'].resample('1D').max()  # one day
+df['come_col'].resample('2D').mean()  # two days
+df['come_col'].resample('W').  # week
+
+# to display plots directly in jupyter notebooks
+%matplotlib inline
+
+# resample multiple columns at ones and use multiple aggregation methods
+df.resample('W').aggregation_method()
+df.resample('W').agg({'col_name_1': 'aggr_func_1', 'col_name_2': 'aggr_func_2'})
+
+
+
+# ------------------------ VID 11 - READING AND SAVING DATA ----------------------
+
+# write to csv
+df.to_csv('new_file.csv')
+
+# tab delimited files - .tsv
+df.to_csv('new_file.tsv', sep='\t)
+
+# excel
+# need to install some packages
+pip install xlwt  # older 'xls-xl' excel format
+pip install openpyxl  # new 'xls-x' excel format
+pip install xlrd  # just read excel files
+
+df.to_excel('new_file.xlsx')
+
+
+# JSON
+
+df.to_json('file.json')  # dict-like json
+df.to_json('file.json', orient='records', lines=True)  # list-like json
+df = pd.read_json('file.json', orient='records', lines=True)
+
+
+# SQL
+# install packages
+ORM - object relational mapper
+pip install SQLAlchemy
+pip install psycopg2-binary  # for using postgreSQL
+
+# connect to db using sqlalchemy
+from sqlalchemy import create_engine
+import psycopg2
+# engine is dfb connection
+# assuming that db is created and have username and password
+engine = create_engine('postgresql://user:pass@localhost:port_num/database.db'
+# you should not put credentials above !
+# use environment veriables
+# create table and write to it
+df.to_sql('sample_table', engine)
+df.to_sql('sample_table', engine, if_exists='replace/append/...')
+
+# read data from db
+sql_df = pd.read_sql('sample_table', engine)
+
+# load table partially
+sql_df = pd.read_sql('SELECT * FROM sample_table WHERE......;', engine)
+
+# ONE MORE TIP - load over http
+df = pd.read_json(url)
