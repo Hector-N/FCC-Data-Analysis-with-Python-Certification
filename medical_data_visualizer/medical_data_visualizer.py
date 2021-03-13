@@ -16,7 +16,6 @@ medical['overweight'] = None
 medical.loc[overweight_true_filter, 'overweight'] = 1
 medical.loc[overweight_false_filter, 'overweight'] = 0
 medical['overweight'] = medical.overweight.astype('int')
-medical['id'] = medical.index
 
 
 # Normalize data
@@ -25,6 +24,25 @@ medical['id'] = medical.index
 # If the value is more than 1, make the value 1.
 medical.loc[:, 'cholesterol'] = medical['cholesterol'].map({1: 0, 2: 1, 3: 1})
 medical.loc[:, 'gluc'].replace({1: 0, 2: 1, 3: 1}, inplace=True)
+
+
+def clean_data():
+
+    diastolic_incorrect_filter = medical.ap_lo > medical.ap_hi
+
+    too_short = medical.height < medical.height.quantile(0.025)
+    too_high = medical.height > medical.height.quantile(0.975)
+    height_incorrect_filter = too_short | too_high
+
+    too_light = medical.weight < medical.weight.quantile(0.025)
+    too_heavy = medical.weight > medical.weight.quantile(0.975)
+    weight_incorrect_filter = too_light | too_heavy
+
+    incorrect_data_filter = diastolic_incorrect_filter | height_incorrect_filter | weight_incorrect_filter
+
+    medical_cleaned = medical.loc[~incorrect_data_filter, :]
+
+    return medical_cleaned
 
 
 # Draw Categorical Plot
@@ -70,25 +88,6 @@ def draw_cat_plot():
     # Do not modify the next two lines
     fig.savefig('catplot.png')
     return fig
-
-
-def clean_data():
-
-    diastolic_incorrect_filter = medical.ap_lo > medical.ap_hi
-
-    too_short = medical.height < medical.height.quantile(0.025)
-    too_high = medical.height > medical.height.quantile(0.975)
-    height_incorrect_filter = too_short | too_high
-
-    too_light = medical.weight < medical.weight.quantile(0.025)
-    too_heavy = medical.weight > medical.weight.quantile(0.975)
-    weight_incorrect_filter = too_light | too_heavy
-
-    incorrect_data_filter = diastolic_incorrect_filter | height_incorrect_filter | weight_incorrect_filter
-
-    medical_cleaned = medical.loc[~incorrect_data_filter, :]
-
-    return medical_cleaned
 
 
 # Draw Heat Map
