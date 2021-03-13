@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Import data
-medical = pd.read_csv('medical_examination.csv', index_col='id')
+medical = pd.read_csv('medical_examination.csv', index_col='id')  # Woe from Wit
+medical.reset_index(inplace=True)
 
 # Add 'bmi' and 'overweight' columns
 bmi = medical['weight'] / (medical['height'] / 100) ** 2
@@ -14,6 +15,9 @@ overweight_false_filter = bmi <= 25
 medical['overweight'] = None
 medical.loc[overweight_true_filter, 'overweight'] = 1
 medical.loc[overweight_false_filter, 'overweight'] = 0
+medical['overweight'] = medical.overweight.astype('int')
+medical['id'] = medical.index
+
 
 # Normalize data
 # Make 0 always good and 1 always bad.
@@ -57,7 +61,9 @@ def draw_cat_plot():
     ax0.set_title('cardio = 0')
     ax1.set_title('cardio = 1')
 
-    # Group and reformat the data to split it by 'cardio'. Show the counts of each feature. You will have to rename one of the collumns for the catplot to work correctly.
+    # Group and reformat the data to split it by 'cardio'.
+    # Show the counts of each feature.
+    # You will have to rename one of the columns for the catplot to work correctly.
     # df_cat = None
     # Draw the catplot with 'sns.catplot()'
 
@@ -66,26 +72,47 @@ def draw_cat_plot():
     return fig
 
 
-# # Draw Heat Map
-# def draw_heat_map():
-#     # Clean the data
-#     df_heat = None
-#
-#     # Calculate the correlation matrix
-#     corr = None
-#
-#     # Generate a mask for the upper triangle
-#     mask = None
-#
-#
-#
-#     # Set up the matplotlib figure
-#     fig, ax = None
-#
-#     # Draw the heatmap with 'sns.heatmap()'
-#
-#
-#
-#     # Do not modify the next two lines
-#     fig.savefig('heatmap.png')
-#     return fig
+def clean_data():
+
+    diastolic_incorrect_filter = medical.ap_lo > medical.ap_hi
+
+    too_short = medical.height < medical.height.quantile(0.025)
+    too_high = medical.height > medical.height.quantile(0.975)
+    height_incorrect_filter = too_short | too_high
+
+    too_light = medical.weight < medical.weight.quantile(0.025)
+    too_heavy = medical.weight > medical.weight.quantile(0.975)
+    weight_incorrect_filter = too_light | too_heavy
+
+    incorrect_data_filter = diastolic_incorrect_filter | height_incorrect_filter | weight_incorrect_filter
+
+    medical_cleaned = medical.loc[~incorrect_data_filter, :]
+
+    return medical_cleaned
+
+
+# Draw Heat Map
+def draw_heat_map():
+
+    medical_cleaned = clean_data()
+
+    # Calculate the correlation matrix
+    corr = medical_cleaned.drop('bmi', axis='columns').corr()
+
+    # Generate a mask for the lower triangle and apply it to dataset
+    corr_lower_triangle_mask = np.tril(np.ones(corr.shape), k=-1).astype(bool)
+    corr_lower_triangle = corr.where(corr_lower_triangle_mask)
+
+    # plot
+    fig, axes = plt.subplots(figsize=(10, 8))
+    sns.heatmap(corr_lower_triangle, ax=axes,
+                annot=True,
+                fmt='.1f',
+                cmap=None,
+                robust=True,
+                square=True,
+                linecolor='white', linewidths=0.6)
+
+    fig.savefig('heatmap.png')
+
+    return fig
