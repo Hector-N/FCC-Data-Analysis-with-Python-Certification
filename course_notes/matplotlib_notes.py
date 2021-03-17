@@ -76,8 +76,8 @@ plt.savefig('plot_01.png')
 # line plot,
 
 
-vid 2 - BAR CHARTS
-Median Developer Salaries by Age
+# vid 2 - BAR CHARTS
+# Median Developer Salaries by Age
 
 ages_x = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
 x_indexes = np.arange(len(ages_x))
@@ -108,8 +108,8 @@ plt.tight_layout()
 plt.show()
 
 
-vid 3 - pie charts
-chows a proportion of the category to the whole set
+# vid 3 - pie charts
+# chows a proportion of the category to the whole set
 plt.title('Pie Chart')
 plt.style.use('fivethirtyeight')
 plt.tight_layout()
@@ -136,9 +136,9 @@ plt.show()
 
 
 
-vid 4 - STACK PLOT (AREA PLOT)
-similar to the pie-chart
-shows how the proportions of the different value contribute to the whole, but shows it 'over time'
+# vid 4 - STACK PLOT (AREA PLOT)
+# similar to the pie-chart
+# shows how the proportions of the different value contribute to the whole, but shows it 'over time'
 
 minutes = list(range(1, 10))
 # player1 = [1, 2, 3, 3, 4, 4, 4, 4, 5]
@@ -190,19 +190,3 @@ def aa            (a, b):
 pd.DataFrame = aa
 
 n = pd.DataFrame(10, 5)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
